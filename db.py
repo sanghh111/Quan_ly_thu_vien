@@ -4,7 +4,9 @@ import hashlib
 import string
 import random
 from tkinter import BooleanVar
+from tkinter.constants import N
 from typing import List
+from datetime import date, datetime
 
 def connect_db(dbfile):
     con = sqlite3.connect(dbfile)
@@ -148,6 +150,37 @@ def insert_sach(ms,mtl,ts,sl,gia):
         return True
     except Exception as e:
         return e
+
+def select_tam_NK():
+    cau_truy_van = '''select count(*)
+    from "Nhat ky muon sach"
+    '''
+    return cur.execute(cau_truy_van).fetchone()[0]
+
+def insert_NK(tk):
+    dem = select_tam_NK()
+    dem = int(dem) +1
+    chuoi = "MS"+str(dem)
+    today = date.today()
+    cau_truy_van = '''Insert into "Nhat ky muon sach"
+    Values("{_chuoi}","{_tk}","{_today}",{_dem})'''.format(_chuoi=chuoi,_tk=tk,_dem=dem,_today=today)
+    print('cau_truy_van: ', cau_truy_van)
+    try:
+        cur.execute(cau_truy_van)
+        return True,chuoi
+    except Exception as E:
+        return E,False
+
+def insert_chi_tiet(ten,value):
+    cau_truy_van = '''insert into "Chi tiet muon sach"
+    values("{mms}","{ms}")'''.format(mms=ten,ms=value)
+    print('cau_truy_van: ', cau_truy_van)
+    try: 
+        cur.execute(cau_truy_van)
+        return True
+    except Exception as e:
+        return e
+
 # a = insert_nhan_vien("sang","123","Sang","2000-08-04","123131","123131321")
 # print('a: ', a)
 # if a== True:

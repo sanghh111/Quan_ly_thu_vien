@@ -83,6 +83,5 @@ def nhan_dien_khuon_mat(name,num_of_images):
         cv2.imwrite(str(path+"/"+str(num_of_images)+name+".jpg"), new_img)
         num_of_images += 1
     except :
-
         pass
     return img,num_of_images

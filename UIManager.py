@@ -200,7 +200,19 @@ class Maneger(Frame):
         self.tree.bind("<<TreeviewSelect>>",self.chon_tree)
 
     #
+    #Quan ly muon sach
+        self.muon_sach1 =  Frame(noot)
+        self.muon_sach1.pack()
+        
+        self.chuc_nang_ms = LabelFrame(self.muon_sach1,text="Chức năng")
+        self.chuc_nang_ms.pack()
+        Button(self.chuc_nang_ms,text="Mượn sách",command=self.muon_sach).grid(column=0,row=0)
+        Label(self.chuc_nang_ms,text="",width=5).grid(column=1,row=0)
+        Button(self.chuc_nang_ms,text="Xem thông tin mượn sách").grid(column=2,row=0)
+        self.f_tree_ms = None
+
         noot.add(quan_ly_sach,text="Quản lý sách")
+        noot.add(self.muon_sach1,text="Quản lý mượn sách")
         noot.bind('<Button-1>',self.chuyenTrang)
 
         self.master.geometry("600x410")
@@ -279,8 +291,11 @@ class Maneger(Frame):
             tam = float(tam)
             int_tam = int(tam)
             print('str(int_tam-tam)[:1]: ', str(tam-int_tam))
-            tam = str(tam-int_tam)[2:]
+            tam = str(tam-int_tam)
+            tam = round(float(tam),1)
+            tam = str(tam)[2:]
             tam = int(tam)
+            tam -=1
             
             print('tam: ', tam)
             self.value_tl[0].set(self.tl_view[int(int_tam)][0])
@@ -296,7 +311,7 @@ class Maneger(Frame):
         so = self.tree.selection()
         value = self.tree.item(so)['values']
         print('value: ', value)
-        if(value == ()):
+        if(so == ()):
             messagebox.showerror("THÔNG BÁO","CHƯA CHỌN THỂ LOẠI SÁCH")
             return
         if self.value_sach[0].get() =="" and self.value_sach[1].get() == "" and self.value_sach[2].get() == 0 and self.value_sach[4].get() == 0:
@@ -411,7 +426,90 @@ class Maneger(Frame):
             print(self.tl_view)
             self.load_view()
 
+    def muon_sach(self):
+        if(self.f_tree_ms == None):
+            self.f_tree_ms = Frame(self.muon_sach1)
+            print('self.f_tree_ms: ', self.f_tree_ms)
+            self.f_tree_ms.pack()
+            sroll =  Scrollbar(self.f_tree_ms)
+            sroll.pack(fill=Y,side=RIGHT)
+            self.tree_ms = ttk.Treeview(self.f_tree_ms,yscrollcommand=sroll,height=5)
+            self.tree_ms.pack()
+            self.tree_ms['column'] = ('mã sách','tên sách','giá')
 
+            self.tree_ms.column('#0',stretch=NO,width=0)
+            self.tree_ms.column('mã sách',width=50)
+            self.tree_ms.column('tên sách',width=100,anchor=CENTER)
+            self.tree_ms.column('giá',width=80,anchor=E)
+
+            self.tree_ms.heading('mã sách',text='mã sách')
+            self.tree_ms.heading('tên sách',text='tên sách')
+            self.tree_ms.heading('giá',text='giá')
+            
+            self.dem_ms =0
+            self.bang_ms =[]
+
+            frame = Frame(self.f_tree_ms)
+            frame.pack()
+
+
+            self.tenTk =StringVar()
+            Label(frame,text="TK KHÁCH HÀNG").grid(column=0,row=0)
+            Entry(frame,textvariable=self.tenTk).grid(column=1,row=0)
+
+
+            Button(self.f_tree_ms,text="THÊM SÁCH",command=self.them_sach_vao_don).pack()
+            Button(self.f_tree_ms,text="XÓA SÁCH",command= self.xoa_sach_ra_khoi_don).pack()
+            Button(self.f_tree_ms,text="ĐẶT SÁCH",command=self.dat_sach).pack()
+
+        if self.f_tree_ms.pack_info=={}:
+            self.f_tree_ms.pack()
+        
+    def them_sach_vao_don(self):
+        so = self.tree.selection()
+        if so == () :
+            messagebox.showerror("THÔNG BÁO","CHƯA CHỌN SÁCH")
+            return
+        else:
+            if str(so).find('.') == -1 :
+                messagebox.showerror("THÔNG BÁO","CHƯA CHỌN SÁCH")
+                return
+        chuoi= (f'{self.value_sach[0].get()}',f'{self.value_sach[1].get()}',f'{self.value_sach[4].get()}')
+        if(chuoi in self.bang_ms):
+            messagebox.showerror("THÔNG BÁO","ĐÃ CHỌN SÁCH NÀY")
+            return
+        self.bang_ms.append(chuoi)
+        self.tree_ms.insert("","end",self.dem_ms,values=chuoi)
+        self.dem_ms+=1
+
+    def xoa_sach_ra_khoi_don(self):
+        so = self.tree_ms.selection()
+        if so == () :
+            messagebox.showerror("THÔNG BÁO","CHƯA CHỌN SÁCH")
+        self.tree_ms.delete(so)
+        self.bang_ms.remove(self.bang_ms[int(so[0])])
+        # print('self.bang_ms: ', self.bang_ms)
+
+
+    def dat_sach(self):
+        if self.bang_ms == []:
+            messagebox.showerror("THÔNG BÁO","CHƯA CÓ SÁCH")
+            return
+        trang_thai,chuoi = insert_NK(self.tenTk.get())
+        if trang_thai == True:
+            for i in self.bang_ms:
+                a = insert_chi_tiet(chuoi,i[0])
+                if a != True:
+                    messagebox.showerror("THÔNG BÁO",a)
+                    con.rollback
+                    return
+        else :
+            messagebox.showerror("THÔNG BÁO",trang_thai)
+            con.rollback()
+        messagebox.showinfo("THÔNG BÁO","MƯỢN SÁCH THÀNH CÔNG")
+        con.commit()
     def chuyenTrang(self,e):
+        if self.f_tree_ms.pack_info != {}:
+            return
         self.load_lai()
 Start(Tk())
