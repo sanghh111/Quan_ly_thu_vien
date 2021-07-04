@@ -116,6 +116,38 @@ def select_sach(the_loai):
     except Exception as E:
         return E
 
+def select_the_loai() ->list:
+    cau_truy_van = '''Select *
+    From "The loai sach"
+    '''
+    return cur.execute(cau_truy_van).fetchall() 
+
+def select_sach_TL(TL) ->list:
+    cau_truy_van = '''Select *
+    From "Sach"
+    where ma_the_loai = "{TL}"
+    '''.format(TL=TL)
+    return cur.execute(cau_truy_van).fetchall()
+
+def insert_tl(mtl,ttl):
+    cau_truy_van = '''Insert into "The loai sach"
+    Values("{_mtl}","{_ttl}")
+    '''.format(_mtl=mtl,_ttl=ttl)
+    try:
+        cur.execute(cau_truy_van)
+        return True
+    except Exception as E:
+        return E
+
+def insert_sach(ms,mtl,ts,sl,gia):
+    cau_truy_van = '''Insert into "Sach"(ma_sach,ma_the_loai,ten_sach,so_luong,giá)
+    values("{_ms}","{_mtl}","{_ts}",{_sl},{_gia})
+    '''.format(_ms=ms,_mtl=mtl,_ts=ts,_sl=sl,_gia=gia)
+    try:
+        cur.execute(cau_truy_van)
+        return True
+    except Exception as e:
+        return e
 # a = insert_nhan_vien("sang","123","Sang","2000-08-04","123131","123131321")
 # print('a: ', a)
 # if a== True:

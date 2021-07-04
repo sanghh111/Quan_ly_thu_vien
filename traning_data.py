@@ -19,6 +19,7 @@ def train_classifer(name):
 
     for root,dirs,files in os.walk(path):
             pictures = files
+            print('pictures: ', pictures)
 
 
     for pic in pictures :
@@ -37,4 +38,3 @@ def train_classifer(name):
     clf = cv2.face.LBPHFaceRecognizer_create()
     clf.train(faces, ids)
     clf.write("./data/classifiers/"+name+"_classifier.xml")
-

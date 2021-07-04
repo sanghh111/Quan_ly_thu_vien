@@ -240,6 +240,3 @@ class ChucNangChinh(Frame):
         else:
             messagebox.showerror("THÔNG BÁO","SỐ ẢNH KHÔNG ĐỦ")
 Start(Tk())
-
-
-    
